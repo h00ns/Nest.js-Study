@@ -1,38 +1,54 @@
 import { CatsService } from './cats.service';
-import { Controller, Delete, Get, Patch, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpException, Param, ParseIntPipe, Patch, Post, Put, UseFilters, UseInterceptors } from '@nestjs/common';
+import { HttpExceptionFilter } from 'src/common/exceptions/http-exception.filter';
+import { SuccessInterceptor } from 'src/common/interceptors/success.interceptor';
+import { CatRequestDto } from './dto/cats.request.dto';
+import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ReadOnlyCatDto } from './dto/cat.dto';
 
 @Controller('/cats')
+@UseInterceptors(SuccessInterceptor)
+@UseFilters(HttpExceptionFilter)
 export class CatsController {
   // 의존성 주입 (DI) => 컨트롤러(소비자)가 서비스(제품)를 주입받음 / 공급자는 모듈
-  constructor(private readonly CatsService: CatsService) {}
+  constructor(private readonly catsService: CatsService) {}
 
+  @ApiOperation({summary: '현재 고양이 가져오기'})
   @Get()
-  getAllCat() {
-    return 'all cat';
+  getCurrentCat() {
+    return 'current cat'
   }
-
-  @Get('/:id')
-  getOneCat() {
-    return 'one cat';
-  }
-
+  
+  @ApiResponse({
+    status: 500,
+    description: 'Server Error...'
+  })
+  @ApiResponse({
+    status: 200,
+    description: '성공 !',
+    type: ReadOnlyCatDto
+  })
+  @ApiOperation({summary: '회원가입'})
   @Post()
-  createCat() {
-    return 'create cat';
+  async signUp(@Body() body: CatRequestDto) {
+    return await this.catsService.signUp(body);
   }
-
-  @Put('/:id')
-  updateCat() {
-    return 'update cat';
+  
+  @ApiOperation({summary: '로그인'})
+  @Post('/login')
+  logIn() {
+    return 'login'
   }
-
-  @Patch('/:id')
-  patchCat() {
-    return 'patch cat';
+  
+  @ApiOperation({summary: '로그아웃'})
+  @Post('/logout')
+  logOut() {
+    return 'logout'
   }
-
-  @Delete('/:id')
-  deleteCat() {
-    return 'delete cat';
+  
+  @ApiOperation({summary: '고양이 이미지 업로드'})
+  @Post('/upload/cats')
+  uploadCatImg() {
+    return 'uploadImg' 
   }
 }

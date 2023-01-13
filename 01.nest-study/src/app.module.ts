@@ -1,12 +1,32 @@
-import { Module } from '@nestjs/common';
+import {  MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { CatsModule } from './cats/cats.module';
-import { UsersModule } from './users/users.module';
+import { LoggerMiddleware } from './common/middlewares/logger/logger.middleware';
+import { ConfigModule } from '@nestjs/config';
+import * as mongoose from "mongoose"
 
 @Module({
-  imports: [CatsModule, UsersModule],
+  imports: [
+    ConfigModule.forRoot(),
+    MongooseModule.forRoot(process.env.MONGODB_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    }),
+    CatsModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  private readonly isDev: boolean = process.env.MODE === "dev" ? true : false;
+  
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(LoggerMiddleware)
+      .forRoutes('*');
+    // db log 찍기
+    mongoose.set('debug', this.isDev);    
+  }
+}  
