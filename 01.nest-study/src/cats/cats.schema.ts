@@ -4,6 +4,7 @@ import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 import { Document, SchemaOptions } from 'mongoose';
 
 const options: SchemaOptions = {
+  collection: "cats",
   timestamps: true
 }
 
@@ -47,13 +48,17 @@ export class Cat extends Document {
   @IsNotEmpty()
   password: string;
 
-  @Prop()
+  @Prop({
+    default: 'https://velog.velcdn.com/images/funco247/post/ca27d9f2-8b9f-46dd-bf8a-98612fd8e330/image.png'
+  })
+  @IsString()
   imgUrl: string;
 
   readonly readOnlyData: {
     id: string;
     email: string;
     name: string;
+    imgUrl: string;
   }
 }
 
@@ -63,6 +68,7 @@ CatSchema.virtual('readOnlyData').get(function (this: Cat) {
   return {
     id: this.id,
     email: this.email,
-    name: this.name 
+    name: this.name,
+    imgUrl: this.imgUrl
   }
 })

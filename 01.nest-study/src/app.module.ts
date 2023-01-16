@@ -5,6 +5,8 @@ import { AppService } from './app.service';
 import { CatsModule } from './cats/cats.module';
 import { LoggerMiddleware } from './common/middlewares/logger/logger.middleware';
 import { ConfigModule } from '@nestjs/config';
+import { AuthModule } from './auth/auth.module';
+import { CommentsModule } from './comments/comments.module';
 import * as mongoose from "mongoose"
 
 @Module({
@@ -15,6 +17,8 @@ import * as mongoose from "mongoose"
       useUnifiedTopology: true,
     }),
     CatsModule,
+    AuthModule,
+    CommentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
